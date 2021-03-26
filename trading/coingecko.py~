@@ -1,7 +1,0 @@
-import pycoingecko
-from trading import coin_info
-
-gecko = pycoingecko.CoinGecko()
-
-class CoinGeckoInfo(coin_info. CoinInfo):
-    
