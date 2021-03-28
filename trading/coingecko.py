@@ -1,16 +1,18 @@
 import pycoingecko
 from trading import coin_info
 
-gecko = pycoingecko.CoinGecko()
+gecko = pycoingecko.CoinGeckoAPI()
 
-class CoinGeckoInfo(coin_info. CoinInfo):
+class CoinGeckoInfo(coin_info.CoinInfo):
     _known = {}
     _coins = []
     _info_by_id = {}
     _info_by_symbol = {}
 
-    
     @classmethod
+    def get_coin_list(cls):
+        return gecko.get_coins_list()
+            
     def __init__(self, sym_id):
         super().__init__(sym_id)
 
@@ -35,3 +37,8 @@ class CoinGeckoInfo(coin_info. CoinInfo):
 
     def market_data(self):
         return self._details['market_data']
+
+    def on_exchanges(self):
+        return []
+
+    

@@ -8,7 +8,7 @@ class CoinInfo:
     _info_by_symbol = {}
 
     @classmethod
-    def get_coins_list():
+    def get_coins_list(cls):
         return []
     
     @classmethod
@@ -70,5 +70,10 @@ class CoinInfo:
     def price_changes(self):
         mar = self.market_data()
         pass
+
+    def on_exchanges(self):
+        return []
+
+    
     
     
