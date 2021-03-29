@@ -10,11 +10,15 @@ class CoinGeckoInfo(coin_info.CoinInfo):
     _info_by_symbol = {}
 
     @classmethod
-    def get_coin_list(cls):
+    def get_coins_list(cls):
         return gecko.get_coins_list()
             
     def __init__(self, sym_id):
         super().__init__(sym_id)
+
+    def current_price(self):
+        self.refresh()
+        return self.market_data()['current_price']
 
     def get_detail(self):
         raw = gecko.get_coin_by_id(self._info['id'])
@@ -42,3 +46,6 @@ class CoinGeckoInfo(coin_info.CoinInfo):
         return []
 
     
+if __name__ == '__main__':
+    eth = CoinGeckoInfo('eth')
+    print(eth)

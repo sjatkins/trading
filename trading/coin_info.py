@@ -41,21 +41,16 @@ class CoinInfo:
     def __init__(self, sym_id):
         self._info = self.info_by_symbol(sym_id) or self.info_by_id(sym_id)
         assert(self._info)
-        self._raw_detail, self._detail = self.get_detail() 
-        self._details = self.clean_coin_data()
+        self._raw_detail, self._detail = {}, {}
+        self.refresh()
 
+    def refresh(self):
+        self._raw_detail, self._detail = self.get_detail()
+        self._detail = self.clean_coin_data(self._raw_detail)
 
     def get_detail(self):
         return {}, {}
 
-    
-    
-    def refresh():
-        """
-        Refreshes the subparts of the information likely to go stale on demand.
-        """
-        pass
-    
     def clean_coin_data(self, raw):
         """
         API specific cleanup for interests of this module.
@@ -65,7 +60,7 @@ class CoinInfo:
         return raw
     
     def market_data(self):
-        return self._details['market_data']
+        return self._detail['market_data']
     
     def price_changes(self):
         mar = self.market_data()
