@@ -1,7 +1,7 @@
 __author__ = 'samantha'
 from setuptools import setup, find_packages
 
-setup(name='cwutils',
+setup(name='trading',
       version='0.1',
       description='crypto trading hackery',
       author='Samantha Atkins',
