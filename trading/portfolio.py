@@ -1,5 +1,10 @@
 from trading import coingecko as cg
-import json, time
+import json, time, os
+import trading
+
+data_path = os.path.join(trading.__path__[0], 'data')
+portfolios_path = os.path.join(data_path, 'portfolios')
+
 
 class PortfolioPosition:
     def __init__(self, sym_id, history=None):
@@ -9,6 +14,24 @@ class PortfolioPosition:
         self._avg_price = 0.0
         self._percentage = 0.0
 
+    def sell_all(self):
+        return self.sell_percentage(100.0)
+
+    def sell_percentage(self, percentage):
+        amt = self._amount * percentage / 100.0
+        return self.sell(amount=amt)
+
+    def adjust_to(self, amount=0.0, dollar_amount=0.0):
+        if dollar_amount:
+            amount = dollar_amount / self._coin_info.current_price()
+        change = amount - self._amount
+        if change:
+            if change > 0:
+                return self.buy(amount=change)
+            else:
+                return self.sell(amount=change)
+        return 0.0
+    
     @property
     def symbol(self):
         return self._coin_info.symbol
@@ -87,6 +110,7 @@ class Portfolio:
         self._name = name
         self._positions = positions or {}
         self._cash = starting_cash
+        self._profit = 0.0
 
     def to_json(self):
         return dict(
@@ -95,6 +119,12 @@ class Portfolio:
             starting_cash = self._cash
         )
 
+    def save(self):
+        data = self.to_json()
+        path = os.path.join(portfolios_path, '%s.json' % self._name)
+        with open(path, 'w') as f:
+            json.dump(data, f)
+    
     @classmethod
     def from_json(cls, data):
         data['positions'] = {k: PortfolioPosition.from_json(v) for k,v in data['positions'].items()}
@@ -124,6 +154,33 @@ class Portfolio:
     def ratio_adjustments(self):
         with_precent = {k:v for k,v in self._positions if v.percentage}
         total_pool = sum(v.current_value for v in self._positions.values())
+
+    def remove_position(self, sym_id):
+        pos = self._positions.pop(sym_id, None)
+        if pos:
+            self._cash += pos.sell_all()
+        
+    def split_evenly(self, remove_others=False, *symbols):
+        if symbols:
+            if remove_others:
+                to_remove = set(self._positions.keys()) - set(symbols)
+                for sym in to_remove:
+                    self.remove_position(sym)
+            to_add = set(symbols) - set(self._positions.keys())
+            for sym in to_add:
+                self.get_position(sym, True)
+
+        amount = self.total_value() - self._profit
+        per_position = amount / len(self._positions)
+
+        # TODO do any remaining sells before buys to ensure funds
+
+        for pos in self._positions.values():
+            self._cash += pos.adjust_to(dollar_amount=per_position)
+    
+        
+        
+        
 
     def add_position(self, sym_id, amount=0.0, price=0.0, dollar_amount=None, balance_percentage=None):
         
@@ -156,3 +213,16 @@ class Portfolio:
             if add_if_missing:
                 self._positions[sym_id] = PortfolioPosition(sym_id)
         return self._positions.get(sym_id)
+
+def saved_portfolios():
+    saved = {}
+    possibles = [f for f in os.listdir(portfolios_path) if f.endswith('.json')]
+    for p in possibles:
+        with open(os.path.join(portfolios_path, p)) as f:
+            data = json.load(f)
+            obj = Portfolio.from_json(data)
+            saved[data['name']] = obj
+    return saved
+                  
+
+

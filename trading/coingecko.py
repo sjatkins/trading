@@ -5,7 +5,9 @@ from collections import defaultdict
 
 gecko = pycoingecko.CoinGeckoAPI()
 
-
+class UnknownCoin(Exception):
+    def __init__(self, sym_id):
+        super().__init__('cannont find coin %s' % sym_id)
 
 class CoinGeckoInfo(coin_info.CoinInfo):
 
@@ -99,14 +101,29 @@ class Exchange(du.DictObject):
     def coin_info(self):
         if not self._coin_info:
             self._coin_info = {k: CoinGeckoInfo.for_coin(k) for k in self.coin_pairs()}
+            self._coin_info = {k:v for k,v in self._coin_info.items() if v}
         return self._coin_info
 
     def change_24h(self):
         return {k: v.percentage_change()['24h'] for k,v in self.coin_info().items()}
 
+    def change_7d(self):
+        return {k: v.percentage_change()['7d'] for k,v in self.coin_info().items()}
+    
+    def change_30d(self):
+        return {k: v.percentage_change()['30d'] for k,v in self.coin_info().items()}
+
+    def sorted_pairs(self, fn):
+        return sorted(fn().items(), key=lambda x:x[1])[::-1]
+    
     def sorted_24h(self):
-        return sorted(self.change_24h().items(), key=lambda x:x[1])[::-1]
+        return self.sorted_pairs(self.change_24h)
+
+    def sorted_7d(self):
+        return self.sorted_pairs(self.change_7d)
         
+    def sorted_30d(self):
+        return self.sorted_pairs(self.change_30d)
             
 
     

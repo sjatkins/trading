@@ -26,7 +26,7 @@ class CoinInfo:
         if not cls._available_coins:
             cls.available_coins()
         info = cls._available_by_id.get(sym_or_id) or cls._available_by_symbol.get(sym_or_id)
-        return info['id']
+        return info['id'] if info else None
         
             
     @classmethod
@@ -45,14 +45,17 @@ class CoinInfo:
 
     @classmethod
     def add_coin(cls, sym_or_id):
-        the_id = cls.coin_id(sym_or_id)
-        if the_id:
-            raw = cls.get_raw_detail(the_id)
-            cls._coins.append(raw)
-            cls._info_by_id[the_id] = raw
-            cls._info_by_symbol[the_id] = raw
-            return raw
-            
+        try:
+            the_id = cls.coin_id(sym_or_id)
+            if the_id:
+                raw = cls.get_raw_detail(the_id)
+                cls._coins.append(raw)
+                cls._info_by_id[the_id] = raw
+                cls._info_by_symbol[the_id] = raw
+                return raw
+        except UnknownCoin as e:
+            print(e)
+
             
         
     @classmethod
@@ -67,13 +70,17 @@ class CoinInfo:
             cls._info_by_symbol = {c['symbol'].lower():c for c in cls.coins()}
         return cls._info_by_symbol.get(sym) or cls.add_coin(sym)
     
-
+    @classmethod
+    def info_for_coin(cls, sym_id):
+        return cls.info_by_symbol(sym_id) or cls.info_by_id(sym_id)
+    
     @classmethod
     def for_coin(cls, sym_id):
         sym_id = cls._aliases.get(sym_id, sym_id)
         res = cls._known.get(sym_id)
         if not res:
-            res = cls(sym_id)
+            if cls.info_for_coin(sym_id):
+                res = cls(sym_id)
             cls._known[sym_id] = res
         return res
 
