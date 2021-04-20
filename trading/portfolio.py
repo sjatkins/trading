@@ -13,7 +13,7 @@ class PortfolioPosition:
         self._amount = 0.0
         self._avg_price = 0.0
         self._percentage = 0.0
-
+    
     def sell_all(self):
         return self.sell_percentage(100.0)
 
@@ -104,6 +104,8 @@ class PortfolioPosition:
             price = self._coin_info.current_price()
         return quantity * price
 
+    
+    
 
 class Portfolio:
     def __init__(self, name, starting_cash=0.0, positions=None):
@@ -132,7 +134,7 @@ class Portfolio:
             
 
     def add_cash(self, amount):
-        cash += amount
+        self._cash += amount
 
     def positions(self):
         return {k:v.standard_info() for k,v in self._positions.items()}
@@ -177,10 +179,6 @@ class Portfolio:
 
         for pos in self._positions.values():
             self._cash += pos.adjust_to(dollar_amount=per_position)
-    
-        
-        
-        
 
     def add_position(self, sym_id, amount=0.0, price=0.0, dollar_amount=None, balance_percentage=None):
         
@@ -200,13 +198,11 @@ class Portfolio:
                 else:
                     self._cash += position.sell(amount, price)
 
-                    
     def sell_position(self, sym_id, amount=0.0, price=0.0, dollar_amount=None):
         position = self._positions.get(sym_id)
         if position:
             cash = self.add_position(sym_id, amount, price, dollar_amount)
             self._cash += cash
-        
 
     def get_position(self, sym_id, add_if_missing=False):
         if sym_id not in self._positions:
@@ -223,6 +219,21 @@ def saved_portfolios():
             obj = Portfolio.from_json(data)
             saved[data['name']] = obj
     return saved
+
+class ExchangeTopPortfolio(Portfolio):
+    def __init__(self, name, exchange, stable_target='usdt', reserved_positions=None, initial_cash=0.0, num_top=5, positions=None):
+        self._num = num_top
+        self._exchange = exchange
+        self._stable_target = stable_target
+        self._reserved_positions=reserved_positions or []
+        super().__init__(name, starting_cash=initial_cash, positions=positions)
+        if initial_cash:
+            # put it in stable_target
+            pass
+    def adjust(self):
+        adjustable_positions = [p for p in self._positions if p.name not in self._reserved_positions]
+
+
                   
 
 

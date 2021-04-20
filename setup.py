@@ -8,5 +8,8 @@ setup(name='trading',
       author_email='sjatkins@gmail.com',
       license='MIT',
       packages=['trading'],
+      entry_points={
+          'console_scripts': ['kucoin24=trading.scripts:get_kucoin_top']
+      },
       install_requires = ['requests', 'beautifulsoup4', 'pycoingecko'],
       zip_safe=False)

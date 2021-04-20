@@ -104,8 +104,19 @@ class Exchange(du.DictObject):
             self._coin_info = {k:v for k,v in self._coin_info.items() if v}
         return self._coin_info
 
+    def refresh_coin_info(self):
+        self._coin_info.clear()
+        
+    def change_in_period(self, period, recompute_info=True):
+        if recompute_info:
+            self.refresh_coin_info()
+        return {k: v.percentage_change()[period] for k,v in self.coin_info().items()}
+        
     def change_24h(self):
         return {k: v.percentage_change()['24h'] for k,v in self.coin_info().items()}
+
+    def change_1h(self):
+        return {k: v.percentage_change()['1h'] for k,v in self.coin_info().items()}
 
     def change_7d(self):
         return {k: v.percentage_change()['7d'] for k,v in self.coin_info().items()}
@@ -113,9 +124,17 @@ class Exchange(du.DictObject):
     def change_30d(self):
         return {k: v.percentage_change()['30d'] for k,v in self.coin_info().items()}
 
-    def sorted_pairs(self, fn):
+    def sorted_period(self, period, recompute=True):
+        data = self.change_in_period(period, recompute)
+        return sorted(data.items(), key=lambda x:x[1])[::-1]
+        
+    def sorted_pairs(self, fn, recompute=True):
+        
         return sorted(fn().items(), key=lambda x:x[1])[::-1]
     
+    def sorted_1h(self):
+        return self.sorted_pairs(self.change_1h)
+
     def sorted_24h(self):
         return self.sorted_pairs(self.change_24h)
 
