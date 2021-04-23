@@ -125,7 +125,7 @@ class Exchange(du.DictObject):
         return {k: v.percentage_change()['30d'] for k,v in self.coin_info().items()}
 
     def sorted_period(self, period, recompute=True):
-        data = self.change_in_period(period, recompute)
+        data = {k:v for k,v in self.change_in_period(period, recompute).items() if v}
         return sorted(data.items(), key=lambda x:x[1])[::-1]
         
     def sorted_pairs(self, fn, recompute=True):
