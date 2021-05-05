@@ -21,3 +21,26 @@ def get_kucoin_top(num=10):
         table.add_row([symbol.upper(), '%3.2f' % percent, '%5.5f' % usd, '%3.10f' % eth])
 
     print(table)
+
+def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_aside=0):
+    data = []
+    table = PrettyTable()
+    table.field_names = ['Index', 'Earned', 'Base Price', 'Taking']
+    table.align['Index'] = 'r'
+    table.align['Earned'] = 'r'
+    table.align['Base Price'] = 'r'
+    table.align['Takisc'] = 'r'
+    mnth = rate/100/12
+    
+    for i in range(40):
+        earned = base * mnth
+        taking = 0
+        if take_up_to:
+            taking = take_up_to if (earned > 2 * take_up_to) else earned/2
+        elif percent_aside:
+            taking = earned * percent_aside/100.0
+        
+        base += earned + add - taking
+        table.add_row([i+1, '{:14,.2f}'.format(earned), '{:14,.2f}'.format(base), '{:14,.2f}'.format(taking)])
+
+    print(table)
