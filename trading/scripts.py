@@ -22,7 +22,7 @@ def get_kucoin_top(num=10):
 
     print(table)
 
-def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_aside=0, times=12):
+def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_aside=0, times=12, how_often=12):
     data = []
     table = PrettyTable()
     table.field_names = ['Index', 'Earned', 'Base Price', 'Taking']
@@ -34,16 +34,30 @@ def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_as
     per_day = rate/100/365
     unit_rate = per_day * 365/times
     unit_days = 365/times
+    take_days = 365/how_often
+    
     time_period = 365 * 3
     count = int(time_period / unit_days )
+    next_month = 1
+    cumulative_earn = 0
+    cumulative_days = 0
+    taking_rate = percent_aside/100
     for i in range(count):
+        cumulative_days += unit_days
         earned = base * unit_rate
+        cumulative_earn += earned
         taking = 0
-        if take_up_to:
-            taking = take_up_to if (earned > 2 * take_up_to) else earned/2
-        elif percent_aside:
-            taking = earned * percent_aside/100.0
-        
+        if taking_rate:
+            if cumulative_days  >= take_days:
+                taking = cumulative_earn * taking_rate
+                cumulative_earn = 0
+                cumulative_days = 0
+        elif take_up_to:
+            if cumulative_days >= take_days:
+                taking = min(take_up_to, earned)
+                cumulative_earn = 0
+                cumulative_days = 0
+         
         base += earned + add - taking
         table.add_row([i+1, '{:14,.2f}'.format(earned), '{:14,.2f}'.format(base), '{:14,.2f}'.format(taking)])
 
