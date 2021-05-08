@@ -1,5 +1,7 @@
 from trading import coingecko as cg
 from trading import portfolio
+import math
+
 gecko = cg.gecko
 get_exchange = cg.Exchange.for_
 get_coin = cg.CoinGeckoInfo.for_coin
@@ -41,7 +43,9 @@ def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_as
     next_month = 1
     cumulative_earn = 0
     cumulative_days = 0
+    take_until = 0
     taking_rate = percent_aside/100
+    taking_left = 0
     for i in range(count):
         cumulative_days += unit_days
         earned = base * unit_rate
@@ -57,7 +61,13 @@ def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_as
                 taking = min(take_up_to, earned)
                 cumulative_earn = 0
                 cumulative_days = 0
-         
+                if taking < take_up_to:
+                    take_until = i + math.ceil(take_up_to/taking) - 1
+                    taking_left = take_up_to - taking
+        
+            elif i and i <= take_until:
+                taking = min(earned, taking_left)
+                taking_left -= taking
         base += earned + add - taking
         table.add_row([i+1, '{:14,.2f}'.format(earned), '{:14,.2f}'.format(base), '{:14,.2f}'.format(taking)])
 
