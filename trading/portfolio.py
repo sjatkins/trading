@@ -105,7 +105,25 @@ class PortfolioPosition:
         return quantity * price
 
     
-    
+class StandardPosition(PortfolioPosition):
+    pass
+
+class ScheduledAddedAmount:
+    def __init__(self, coin, how_often_days, dollar_amount, fee_percent=0.0):
+        self._coin = coin
+        self._how_often=how_often_days
+        self._dollar_amount = dollar_amount
+        self._fee_percent = fee_percent
+
+    def coin_amount(self):
+        pass
+
+class StakedPosition(PortfolioPosition):
+    def __init__(self, primary_coin, reward_coin, scheduled_add=None, history=None):
+        self._reward_coin = reward_coin
+        super().__init__(primary_coin, history=history)
+
+
 
 class Portfolio:
     def __init__(self, name, starting_cash=0.0, positions=None):
