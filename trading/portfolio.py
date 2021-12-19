@@ -1,25 +1,45 @@
 from trading import coingecko as cg
 import json, time, os
-import trading
+import trading, match
 
 data_path = os.path.join(trading.__path__[0], 'data')
 portfolios_path = os.path.join(data_path, 'portfolios')
 
+class CashReserve:
+    All_Reserves = {} # CashReserves by currency type
+
+    @classmethod
+    def add_to_reserves(cls, amount, currency):
+        if currency in cls.All_Reserves:
+            cls.All_Reserves[currency].add_amount(amount)
+        else:
+            cls.All_Reserves[currency] = cls(amount, currency=currency)
+
+    def __init__(self, amunt=0, currency='USD'):
+        self._amount = amount
+        self._currency = currency
+
+    def add_amount(self, amount):
+        self._amount += amount
+
+    def convert_to_currency(self, amount, to_currency):
+        pass
+
 
 class PortfolioPosition:
-    def __init__(self, sym_id, history=None):
+    def __init__(self, sym_id, cash_reserve, history=None):
+        self._cash = cash_reserve
         self._coin_info = cg.CoinGeckoInfo(sym_id)
         self._history = history or []
         self._amount = 0.0
         self._avg_price = 0.0
-        self._percentage = 0.0
-    
+
     def sell_all(self):
-        return self.sell_percentage(100.0)
+        return self.sell(self._amount)
 
     def sell_percentage(self, percentage):
         amt = self._amount * percentage / 100.0
-        return self.sell(amount=amt)
+        return self.sell(quantity=amt)
 
     def adjust_to(self, amount=0.0, dollar_amount=0.0):
         if dollar_amount:
@@ -27,9 +47,9 @@ class PortfolioPosition:
         change = amount - self._amount
         if change:
             if change > 0:
-                return self.buy(amount=change)
+                return self.buy(quantity=change)
             else:
-                return self.sell(amount=change)
+                return self.sell(quantity=change)
         return 0.0
     
     @property
@@ -112,16 +132,42 @@ class ScheduledAddedAmount:
     def __init__(self, coin, how_often_days, dollar_amount, fee_percent=0.0):
         self._coin = coin
         self._how_often=how_often_days
-        self._dollar_amount = dollar_amount
-        self._fee_percent = fee_percent
+        self._dollar_amount = dollar_amount # total of account in
+        self._fee_percent = fee_percent # cost per $1000 buying in
 
     def coin_amount(self):
         pass
 
+one_day = 24*60*60
+
+class HistoricalChange:
+    def __init__(self, event_type, amount, when):
+        self._event_type = event_type
+        self._amount = amount
+        self.when = when
+
 class StakedPosition(PortfolioPosition):
-    def __init__(self, primary_coin, reward_coin, scheduled_add=None, history=None):
+    def __init__(self, primary_coin, reward_coin, daily_rate, scheduled_add=None, history=None, compounding=True, overhead_cost=None):
         self._reward_coin = reward_coin
+        self._compounding = compounding
+        self._overhead_cost = overhead_cost
+        self._daily_rate = daily_rate
         super().__init__(primary_coin, history=history)
+        self._scheduled = scheduled_add
+
+    def total_invested(self, until_when=None):
+        now = time.time()
+        until_when = until_when or now
+        investments = sum([h['amount'] for h in self._history if h['type'] == 'invested' and h['when'] < until_when])
+        return investments
+
+    def total_coins(self, until_when=):
+
+    def total_value(self, until_when=None):
+        until_when = until_when or time.time()
+
+
+
 
 
 
