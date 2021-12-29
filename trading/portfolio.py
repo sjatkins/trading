@@ -95,6 +95,10 @@ class PortfolioPosition:
         return self._coin_info.current_price()
 
     def spent_value(self):
+        """
+        Should be sum of spent value which has nothing to do with amount left
+        :return:
+        """
         return self._amount * self._avg_price
 
     def percent_change(self):

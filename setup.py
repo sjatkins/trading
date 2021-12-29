@@ -11,5 +11,5 @@ setup(name='trading',
       entry_points={
           'console_scripts': ['kucoin24=trading.scripts:get_kucoin_top']
       },
-      install_requires = ['requests', 'beautifulsoup4', 'pycoingecko'],
+      install_requires = ['requests', 'beautifulsoup4', 'pycoingecko', 'pydantic'],
       zip_safe=False)
