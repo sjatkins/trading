@@ -1,13 +1,10 @@
 import pycoingecko
-from cwutils import dicts as du
+from sja_utils import dicts as du
 from trading import coin_info
 from collections import defaultdict
 
 gecko = pycoingecko.CoinGeckoAPI()
 
-class UnknownCoin(Exception):
-    def __init__(self, sym_id):
-        super().__init__('cannont find coin %s' % sym_id)
 
 class CoinGeckoInfo(coin_info.CoinInfo):
 
@@ -21,6 +18,7 @@ class CoinGeckoInfo(coin_info.CoinInfo):
     
     @classmethod
     def get_coins_list(cls):
+        """gets full details on all known coins"""
         return gecko.get_coins()
 
         
