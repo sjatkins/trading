@@ -2,8 +2,22 @@ import pycoingecko
 from sja_utils import dicts as du
 from trading import coin_info
 from collections import defaultdict
+from datetime import datetime
 
 gecko = pycoingecko.CoinGeckoAPI()
+
+
+def as_iso_day(a_date):
+    if isinstance(a_date, datetime):
+        return a_date.isoformat()[:10]
+    if isinstance(a_date, float):  # epoch
+        return datetime.utcfromtimestamp(a_date).isoformat()[:10]
+    if '-' in a_date:
+        parts = a_date.split('-')
+        if len(parts[0]) == 4:
+            return a_date
+        else:
+            return '-'.join(reversed(parts))
 
 
 class CoinGeckoInfo(coin_info.CoinInfo):
@@ -25,7 +39,9 @@ class CoinGeckoInfo(coin_info.CoinInfo):
     def __init__(self, sym_id):
         super().__init__(sym_id)
 
-    
+    def get_spot(self, date=None, currency='usd'):
+        return self.historical_price(date, currency=currency) if date else self.current_price(currency)
+
     def current_price(self, currency='usd'):
         self.refresh()
         return self.raw_current_price().get(currency)
@@ -34,6 +50,14 @@ class CoinGeckoInfo(coin_info.CoinInfo):
         raw = self.get_raw_detail(self._info['id'])
         detail = self.clean_coin_data(raw)
         return raw, detail
+
+    def historical_price(self, a_date, currency='usd'):
+        yyyy_mm_dd = as_iso_day(a_date)
+        parts = yyyy_mm_dd.split('-')
+        cg_format = '-'.join(reversed(parts))
+        h = gecko.get_coin_history_by_id(self._id, cg_format)
+        hm = h['market_data']
+        return hm['current_price'].get(currency)
 
     @classmethod
     def clean_coin_data(cls, raw):

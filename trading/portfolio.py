@@ -1,6 +1,7 @@
 from trading import coingecko as cg
+from trading import historical_events as he
 import json, time, os
-import trading, match
+import trading
 
 data_path = os.path.join(trading.__path__[0], 'data')
 portfolios_path = os.path.join(data_path, 'portfolios')
@@ -15,7 +16,7 @@ class CashReserve:
         else:
             cls.All_Reserves[currency] = cls(amount, currency=currency)
 
-    def __init__(self, amunt=0, currency='USD'):
+    def __init__(self, amount=0, currency='USD'):
         self._amount = amount
         self._currency = currency
 
@@ -27,15 +28,54 @@ class CashReserve:
 
 
 class PortfolioPosition:
-    def __init__(self, sym_id, cash_reserve, history=None):
-        self._cash = cash_reserve
+    def __init__(self, sym_id, history=None):
         self._coin_info = cg.CoinGeckoInfo(sym_id)
         self._history = history or []
         self._amount = 0.0
         self._avg_price = 0.0
 
+    def add_event(self, event):
+        self._history.append(event)
+        if isinstance(event, he.SellEvent):
+            self._amount -= event._amount
+        elif isinstance(event, he.BuyEvent):
+            self._amount += event._amount
+        elif isinstance(event, he.SwapEvent):
+            amount = -event._from_amount if event._from._id == self._coin_info._id else event._to_amount
+            self._amount += amount
+
+    def total_fees(self):
+        return sum(h._fee for h in self._history)
+
+    def swap_total(self):
+        """amount + sport + overhead"""
+        events = [h for h in self._history if isinstance(h, he.SwapEvent) and h._to._id == self._coin_info._id]
+        return sum(h._from_amount * h._from_spot for h in events)
+
+    def buy_total(self):
+        return sum(h._amount_spent for h in self._history if isinstance(h, he.BuyEvent))
+
+    def total_spent(self):
+        return self.buy_total() + self.swap_total()
+
+    def sell_total(self) -> float:
+        pass
+
+    def exchange_sell_total(self) -> float:
+        pass
+
+    def total_recieved(self):
+        return self.sell_total() + self.exchange_sell_total()
+
+    def profit_loss(self):
+        return self.total_recieved() - self.total_spent()
+
+    def total_spent(self):
+
+
+
     def sell_all(self):
-        return self.sell(self._amount)
+        return self.sell(self._amount, amount_recieved=0)
 
     def sell_percentage(self, percentage):
         amt = self._amount * percentage / 100.0
@@ -127,6 +167,27 @@ class PortfolioPosition:
         if not price:
             price = self._coin_info.current_price()
         return quantity * price
+
+class Portfolio:
+    def __init__(self, positions=None):
+        self._positions = positions or []
+
+    def bought(self, sym_id, amount, date=None):
+        pass
+
+    def sold(self, sym_id, amount, date=None):
+        pass
+
+    def exchange(self, from_id, amount_coverted, to_id, amount_received):
+        pass
+
+    def total_value(self):
+        pass
+
+    def total_spent(self):
+        pass
+
+
 
     
 class StandardPosition(PortfolioPosition):
