@@ -34,6 +34,10 @@ class SingleHistoryEvent(HistoryEvent):
             self._spot_price = self._coin.current_price()
         self._amount = amount
 
+class DividendEvent(SingleHistoryEvent):
+    def __init__(self, sym_id, amount, date=None):
+        super().__init__(sym_id, amount, date=date)
+
 
 class BuyEvent(SingleHistoryEvent):
     def __init__(self, sym_id, amount, amount_spent, date=None):
