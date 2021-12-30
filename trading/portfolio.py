@@ -70,10 +70,6 @@ class PortfolioPosition:
     def profit_loss(self):
         return self.total_recieved() - self.total_spent()
 
-    def total_spent(self):
-
-
-
     def sell_all(self):
         return self.sell(self._amount, amount_recieved=0)
 
@@ -144,36 +140,33 @@ class PortfolioPosition:
     def percent_change(self):
         return 100.0 * (self.current_value() / self.spent_value() - 1)
 
-    def adjust(self):
-        self._amount = sum([h['amount'] for h in self._history])
-        buys = [h['price'] for h in self._history if h['amount'] > 0]
-        self._avg_price = sum(buys) / len(buys)
-        
-    def buy(self, price, quantity):
-        if not price:
-            price = self._coin_info.current_price()
-        self._history.append(dict(when=time.time(), amount=quantity, price=price))
-        self.adjust()
-        return price * quantity * -1
+    def received_dividend(self, amount, date=None):
+        pass
 
-    def sell(self, quantity, price=0.0):
-        if not price:
-            price = self._coin_info.current_price()
-        self._history.append(dict(when=time.time(), amount=-1 * quantity, price=price))
-        self.adjust()
-        return price * quantity
+    def bought(self, amount_spent, quantity, date=None):
+        event = he.BuyEvent(self._coin_info._id, amount=quantity, amount_spent=amount_spent, date=date)
+        self.add_event(event)
 
-    def change_price(self, quantity, price=0.0):
-        if not price:
-            price = self._coin_info.current_price()
-        return quantity * price
+    def sold(self, amount_received, quantity=None, date=None):
+        if quantity is None:
+            quantity = self._amount
+        event = he.SellEvent(self._coin_info._id, quantity, amount_received, date)
+        self.add_event(event)
+
 
 class Portfolio:
     def __init__(self, positions=None):
-        self._positions = positions or []
+        self._positions = positions or {}
 
-    def bought(self, sym_id, amount, date=None):
-        pass
+    def get_position(self, sym_id):
+        cid = cg.CoinGeckoInfo.coin_id(sym_id)
+        if not cid in self._positions:
+            self._positions[cid] = PortfolioPosition(cid)
+        return self._positions[cid]
+
+    def bought(self, sym_id, amount_received, amount=None, date=None):
+        position: PortfolioPosition = self.get_position(sym_id)
+        position.sell(amount, amount_received, date)
 
     def sold(self, sym_id, amount, date=None):
         pass

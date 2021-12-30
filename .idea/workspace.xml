@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ba7bc513-aa91-495c-883b-0c1c05ea8fa2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trading/coingecko.py" beforeDir="false" afterPath="$PROJECT_DIR$/trading/coingecko.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/trading/portfolio.py" beforeDir="false" afterPath="$PROJECT_DIR$/trading/portfolio.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trading/schema.py" beforeDir="false" afterPath="$PROJECT_DIR$/trading/historical_events.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +32,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1640751419438</updated>
-      <workItem from="1640751420691" duration="17559000" />
+      <workItem from="1640751420691" duration="19698000" />
     </task>
     <servers />
   </component>
