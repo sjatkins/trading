@@ -187,11 +187,25 @@ class StandardPosition(PortfolioPosition):
     pass
 
 class ScheduledAddedAmount:
-    def __init__(self, coin, how_often_days, dollar_amount, fee_percent=0.0):
+    """
+    The idea here is that for some positions there is a planned schedule of adding more, usually via fiat,
+    to the position.  Some possible considerations are
+    a) efficiency/cost of mechanism for fiat to final or interim currency
+    b) efficiency/cost of conversion to final currency
+    Those mechanism can perhaps be handle by a mix of the normal buy sell exchange which include noting
+    fees.
+    As different target coins/tokens have possible different intermediate steps from fiat to target subclassing
+    is one possibility or simlpy having the actual PortfolioPosition provide a from fiat set of methods and run that
+    through the portfolio.  Leaving only the schedule and amount as uniquely to be taken cane of here.
+
+    Since these tools do not initiate trades and rengotiation such sub parts the only real use for this currencly
+    is as an accounting mechanism and something to hang suck join actions off of.  It could be used in future value
+    calculations under different fiat input scenarios.
+    """
+    def __init__(self, coin, how_often_days, dollar_amount):
         self._coin = coin
         self._how_often=how_often_days
         self._dollar_amount = dollar_amount # total of account in
-        self._fee_percent = fee_percent # cost per $1000 buying in
 
     def coin_amount(self):
         pass
@@ -208,7 +222,6 @@ class StakedPosition(PortfolioPosition):
     def __init__(self, primary_coin, reward_coin, daily_rate, scheduled_add=None, history=None, compounding=True, overhead_cost=None):
         self._reward_coin = reward_coin
         self._compounding = compounding
-        self._overhead_cost = overhead_cost
         self._daily_rate = daily_rate
         super().__init__(primary_coin, history=history)
         self._scheduled = scheduled_add

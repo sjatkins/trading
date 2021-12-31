@@ -73,22 +73,3 @@ class SwapEvent(HistoryEvent):
         received = self._to_amount * self._to_spot
         return from_value - received
 
-
-
-
-class PortfolioCoin(BaseModel):
-    coin: Coin
-    history: Optional[List[HistoryEvent]]
-    current_amount: float
-
-    def current_value(self):
-        return self.current_amount * self.coin.current_price()
-
-
-
-    def amount_spent(self):
-        pass
-
-
-class Portfolio:
-    portfolio: List[PortfolioCoin]
