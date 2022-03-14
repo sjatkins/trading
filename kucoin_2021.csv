@@ -1,4 +1,4 @@
-"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol","margin","misc","ledgers"
+git"txid","ordertxid","pair","time","type","ordertype","price","cost","fee","vol","margin","misc","ledgers"
 "TWM2D3-M3S6I-SCDAVR","OF55XI-FWOTR-FO3EZO","ADAUSD","2021-02-02 06:05:23.3447","buy","market",0.400904,400.904000,1.042350,1000.00000000,0.000000,"","LAUSIW-OYHUK-4NLXNG,LPP7Z5-RHFKA-N3U4HC"
 "T33P5W-BBDNP-Q5DQ5W","OYR767-6YGXF-L43LAG","ADAUSD","2021-02-05 22:32:23.5961","buy","market",0.548001,328.800600,0.854882,600.00000000,0.000000,"","L5VV7A-DFSIS-LM56GX,L2TTZV-TDBG7-PPSM2I"
 "TJUO2P-PDGMP-7D7R65","O6UQCN-Q6TCY-4KN4XT","LINKUSD","2021-02-09 23:56:15.2813","sell","market",27.674160,664.179840,1.726868,24.00000000,0.000000,"","LOLYLQ-K7GKN-HHDD4Y,LEYSYW-XW5AN-YO536N"

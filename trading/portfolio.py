@@ -158,7 +158,7 @@ class Portfolio:
     def __init__(self, positions=None):
         self._positions = positions or {}
 
-    def get_position(self, sym_id):
+    def get_position(self, sym_id) -> PortfolioPosition:
         cid = cg.CoinGeckoInfo.coin_id(sym_id)
         if not cid in self._positions:
             self._positions[cid] = PortfolioPosition(cid)
@@ -168,18 +168,31 @@ class Portfolio:
         position: PortfolioPosition = self.get_position(sym_id)
         position.bought(amount, amount_spent, date)
 
-    def sold(self, sym_id, amount, amount_received, date=None):
+
+    def sold(self, sym_id, amount_received, amount=None, date=None):
         position: PortfolioPosition = self.get_position(sym_id)
         position.sold(amount, amount_received, date)
-
-    def exchange(self, from_id, amount_coverted, to_id, amount_received):
         pass
+
+
+    def exchange(self, from_id, amount_coverted, to_id, amount_received, date=None):
+        c_from = self.get_position(from_id)
+        c_to = self.get_position(to_id)
+        exchange = he.SwapEvent(from_id, to_id, amount_coverted, amount_received, date=date)
+        c_from.add_event(exchange)
+        c_to.add_event(exchange)
+
 
     def total_value(self):
         pass
 
     def total_spent(self):
         pass
+
+    def add_staked_position(self, primary_id, amount, reward_id, daily_rate, compounding=False):
+        pass
+
+
 
 
 
@@ -215,11 +228,11 @@ one_day = 24*60*60
 
 
 class StakedPosition(PortfolioPosition):
-    def __init__(self, primary_coin, reward_coin, daily_rate, scheduled_add=None, history=None, compounding=True, overhead_cost=None):
-        self._reward_coin = reward_coin
+    def __init__(self, primary_id, reward_id, daily_rate, portfolio, scheduled_add=None, history=None, compounding=True, overhead_cost=None):
+        self._reward_coin = reward_id
         self._compounding = compounding
         self._daily_rate = daily_rate
-        super().__init__(primary_coin, history=history)
+        super().__init__(primary_id, history=history)
         self._scheduled = scheduled_add
 
     def total_invested(self, until_when=None):
@@ -228,7 +241,8 @@ class StakedPosition(PortfolioPosition):
         investments = sum([h['amount'] for h in self._history if h['type'] == 'invested' and h['when'] < until_when])
         return investments
 
-    def total_coins(self, until_when=):
+    def total_coins(self, until_when=None):
+        pass
 
     def total_value(self, until_when=None):
         until_when = until_when or time.time()
@@ -316,7 +330,7 @@ class Portfolio:
         position = self.get_position(sym_id, add_if_missing=True)
         if position:
             if balance_percentage:
-                position_percentage = percentage
+                position_percentage = balance_percentage
                 if not(amount or dollar_amount):
                     dollar_amount = min(self._cash, self.total_value() * balance_percentage / 100.0)
             if dollar_amount:
