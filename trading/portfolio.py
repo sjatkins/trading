@@ -164,12 +164,13 @@ class Portfolio:
             self._positions[cid] = PortfolioPosition(cid)
         return self._positions[cid]
 
-    def bought(self, sym_id, amount_received, amount=None, date=None):
+    def bought(self, sym_id, amount_spent, amount=None, date=None):
         position: PortfolioPosition = self.get_position(sym_id)
-        position.sell(amount, amount_received, date)
+        position.bought(amount, amount_spent, date)
 
-    def sold(self, sym_id, amount, date=None):
-        pass
+    def sold(self, sym_id, amount, amount_received, date=None):
+        position: PortfolioPosition = self.get_position(sym_id)
+        position.sold(amount, amount_received, date)
 
     def exchange(self, from_id, amount_coverted, to_id, amount_received):
         pass
@@ -198,11 +199,6 @@ class ScheduledAddedAmount:
 
 one_day = 24*60*60
 
-class HistoricalChange:
-    def __init__(self, event_type, amount, when):
-        self._event_type = event_type
-        self._amount = amount
-        self.when = when
 
 class StakedPosition(PortfolioPosition):
     def __init__(self, primary_coin, reward_coin, daily_rate, scheduled_add=None, history=None, compounding=True, overhead_cost=None):
