@@ -10,4 +10,7 @@ class KucoinFromCSV(CSVTrades):
     def extract_type(self, txn):
         return txn['type']
 
+    def extract_coin(self, txn):
+        return txn['pair']
+
 

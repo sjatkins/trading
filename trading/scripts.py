@@ -79,3 +79,7 @@ def cash_accumulation(base, rate, add=0, take_up_to=0, minus_basis=0, percent_as
         table.add_row([i+1, '{:14,.2f}'.format(earned), '{:14,.2f}'.format(base), '{:14,.2f}'.format(taking)])
 
     print(table)
+
+def per_day(apy):
+    x = math.log(apy)/365.0
+    return exp(x)

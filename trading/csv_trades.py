@@ -15,18 +15,30 @@ class CSVTrades:
     def extract_type(self, txn):
         pass
 
-    def by_pair(self):
-        pass
-
-    def by_coin(self):
-        pass
 
     def profit_loss(self):
         pass
 
+    def extract_coin(self, txn):
+        pass
 
-    def by_type(self):
+    def by_type(self, txns=None):
+        txns = txns or self._raw_data
+        res = defaultdict(list)
+        for txn in txns:
+            res[self.extract_type(txn)].append(txn)
+        return dict(res)
+
+    def by_pair(self, txns=None):
+        txns = txns or self._raw_data
         res = defaultdict(list)
         for txn in self._raw_data:
-            res[self.extract_type(txn)].append(txn)
-        return res
+            res[self.extract_coin(txn)].append(txn)
+        return dict(res)
+
+    def by_pair_type(self):
+        return {k: self.by_type(v) for k,v in self.by_pair().items()}
+
+    def by_type_pair(self):
+        return {k: self.by_pair(v) for k,v in self.by_type().items()}
+
